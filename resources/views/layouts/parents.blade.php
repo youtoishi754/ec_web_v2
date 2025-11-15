@@ -279,6 +279,31 @@
       </div>
     </div>
   </nav>
+  
+  {{-- セッションデバッグ情報 --}}
+  <div class="container mt-3">
+    <div class="card bg-light">
+      <div class="card-header">
+        <strong>🔍 セッションデバッグ情報</strong>
+      </div>
+      <div class="card-body">
+        <h6>認証状態:</h6>
+        <pre class="bg-white p-2 border">{{ auth()->check() ? 'ログイン中' : '未ログイン' }}</pre>
+        
+        @if(auth()->check())
+        <h6>ログインユーザー:</h6>
+        <pre class="bg-white p-2 border">{{ print_r(auth()->user()->toArray(), true) }}</pre>
+        @endif
+        
+        <h6>セッション全体:</h6>
+        <pre class="bg-white p-2 border" style="max-height: 400px; overflow-y: auto;">{{ print_r(session()->all(), true) }}</pre>
+        
+        <h6>セッションID:</h6>
+        <pre class="bg-white p-2 border">{{ session()->getId() }}</pre>
+      </div>
+    </div>
+  </div>
+  
   @yield('content')
 
   {{-- フッター --}}

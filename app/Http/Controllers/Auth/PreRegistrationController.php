@@ -12,7 +12,9 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
 use App\Mail\PreRegistrationMail;
+use App\User;
 
 class PreRegistrationController extends BaseController
 {
@@ -96,5 +98,60 @@ class PreRegistrationController extends BaseController
             'email' => $preRegistration->email,
             'token' => $token
         ]);
+    }
+
+    public function complete(Request $request)
+    {
+        // バリデーション
+        $rules = [
+            'token' => 'required|string',
+            'password' => 'required|string|min:8|confirmed',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // トークンで仮登録を検索
+        $preRegistration = DB::table('pre_registrations')
+            ->where('token', $request->token)
+            ->first();
+
+        if (!$preRegistration) {
+            return redirect()->route('pre_register')
+                ->withErrors(['token' => '無効なトークンです。再度登録してください。']);
+        }
+
+        // トークンの有効期限チェック（例：24時間）
+        $createdAt = new \DateTime($preRegistration->created_at);
+        $now = new \DateTime();
+        $diff = $now->diff($createdAt);
+        $hours = ($diff->days * 24) + $diff->h;
+
+        if ($hours > 24) {
+            return redirect()->route('pre_register')
+                ->withErrors(['token' => 'トークンの有効期限が切れています。再度登録してください。']);
+        }
+
+        // ユーザー登録
+        $user = User::create([
+            'name' => explode('@', $preRegistration->email)[0], // メールアドレスの@前をデフォルト名に
+            'email' => $preRegistration->email,
+            'password' => Hash::make($request->password),
+            'email_verified_at' => now(),
+        ]);
+
+        // 仮登録データを削除
+        DB::table('pre_registrations')
+            ->where('token', $request->token)
+            ->delete();
+
+        // ログイン
+        auth()->login($user);
+
+        // 完了画面へリダイレクト
+        return redirect()->route('index')->with('success', '本登録が完了しました。');
     }
 }
