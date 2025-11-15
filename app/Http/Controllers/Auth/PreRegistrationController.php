@@ -43,6 +43,7 @@ class PreRegistrationController extends BaseController
         if ($existing) {
             DB::table('pre_registrations')->where('email', $email)->update([
                 'token' => $token,
+                'created_at' => now(),
                 'updated_at' => now(),
             ]);
         } else {
@@ -60,5 +61,40 @@ class PreRegistrationController extends BaseController
         // TODO: send confirmation email with token link
 
         return view('auth.pre_register_done', ['email' => $email]);
+    }
+
+    public function confirm($token)
+    {
+        // トークンで仮登録を検索
+        $preRegistration = DB::table('pre_registrations')
+            ->where('token', $token)
+            ->first();
+        
+        // トークンが見つからない場合
+        if (!$preRegistration) {
+
+            return redirect()->route('pre_register')
+                ->withErrors(['token' => '無効なトークンです。再度登録してください。']);
+                
+        }
+
+        // トークンの有効期限チェック（例：24時間）
+        $createdAt = new \DateTime($preRegistration->created_at);
+        $now = new \DateTime();
+        $diff = $now->diff($createdAt);
+        $hours = ($diff->days * 24) + $diff->h;
+
+        if ($hours > 24) {
+
+            return redirect()->route('pre_register')
+                ->withErrors(['token' => 'トークンの有効期限が切れています。再度登録してください。']);
+        }
+
+
+        // 本登録フォームを表示
+        return view('auth.pre_register_confirm', [
+            'email' => $preRegistration->email,
+            'token' => $token
+        ]);
     }
 }
