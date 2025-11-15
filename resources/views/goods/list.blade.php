@@ -49,7 +49,7 @@
       @foreach ($goods_list as $goods)
       <div class="col-md-3 mb-4">
         <div class="card h-100">
-          <img class="card-img-top" src="/product-image/dummy.png" alt="商品画像">
+          <img class="card-img-top" src="{{ asset('public/product-image/dummy.png') }}" alt="商品画像">
           <div class="card-body d-flex flex-column">
             <h5 class="card-title">{{ $goods->goods_name }}</h5>
             <p class="card-text mb-1">価格: ¥{{ number_format($goods->goods_price) }}</p>

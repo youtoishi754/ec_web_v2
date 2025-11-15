@@ -16,13 +16,13 @@
             </ol>
             <div class="carousel-inner">
                 <div class="carousel-item active">
-                    <img src="/site-image/dummy_one.png" class="d-block w-100" alt="スライド1">
+                    <img src="{{ asset('public/site-image/dummy_one.png') }}" class="d-block w-100" alt="スライド1">
                 </div>
                 <div class="carousel-item">
-                    <img src="/site-image/dummy_two.png" class="d-block w-100" alt="スライド2">
+                    <img src="{{ asset('public/site-image/dummy_two.png') }}" class="d-block w-100" alt="スライド2">
                 </div>
                 <div class="carousel-item">
-                    <img src="/site-image/dummy_three.png" class="d-block w-100" alt="スライド3">
+                    <img src="{{ asset('public/site-image/dummy_three.png') }}" class="d-block w-100" alt="スライド3">
                 </div>
             </div>
             <a class="carousel-control-prev" href="#welcomeCarousel" role="button" data-slide="prev">
@@ -51,19 +51,19 @@
             <a href="#">新着商品一覧へ</a>
             <div class="products">
                 <div class="product">
-                    <img src="/product-image/dummy.png" alt="新着商品1">
+                    <img src="{{ asset('public/product-image/dummy.png') }}" alt="新着商品1">
                     <p class="p-title">新着商品 1</p>
                 </div>
                 <div class="product">
-                    <img src="/product-image/dummy.png" alt="新着商品2">
+                    <img src="{{ asset('public/product-image/dummy.png') }}" alt="新着商品2">
                     <p class="p-title">新着商品 2</p>
                 </div>
                 <div class="product">
-                    <img src="/product-image/dummy.png" alt="新着商品3">
+                    <img src="{{ asset('public/product-image/dummy.png') }}" alt="新着商品3">
                     <p class="p-title">新着商品 3</p>
                 </div>
                 <div class="product">
-                    <img src="/product-image/dummy.png" alt="新着商品4">
+                    <img src="{{ asset('public/product-image/dummy.png') }}" alt="新着商品4">
                     <p class="p-title">新着商品 4</p>
                 </div>
             </div>
