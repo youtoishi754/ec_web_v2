@@ -3,37 +3,67 @@
 namespace App\Http\Controllers\Auth;
 
 use Illuminate\Routing\Controller as BaseController;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends BaseController
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
-    use AuthenticatesUsers;
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
     /**
-     * Where to redirect users after login.
-     *
-     * @var string
+     * ログインフォームを表示
      */
-    protected $redirectTo = '/home';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function showLoginForm()
     {
-        $this->middleware('guest')->except('logout');
+        return view('auth.login');
+    }
+
+    /**
+     * ログイン処理
+     */
+    public function login(Request $request)
+    {
+        // バリデーション
+        $rules = [
+            'email' => 'required|email',
+            'password' => 'required|string',
+        ];
+
+        $validator = Validator::make($request->all(), $rules);
+
+        if ($validator->fails()) {
+            return redirect()->back()->withErrors($validator)->withInput();
+        }
+
+        // ログイン試行
+        $credentials = $request->only('email', 'password');
+        $remember = $request->has('remember');
+
+        if (Auth::attempt($credentials, $remember)) {
+            // ログイン成功
+            $request->session()->regenerate();
+            return redirect()->intended(route('index'))->with('success', 'ログインしました。');
+        }
+
+        // ログイン失敗
+        return redirect()->back()
+            ->withErrors(['email' => 'メールアドレスまたはパスワードが正しくありません。'])
+            ->withInput($request->only('email'));
+    }
+
+    /**
+     * ログアウト処理
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('index')->with('success', 'ログアウトしました。');
     }
 }

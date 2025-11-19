@@ -264,8 +264,18 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="ml-auto d-flex align-items-center">
-          <a href="{{ route('pre_register') }}" class="btn btn-outline-light mr-2">新規登録</a>
-          <a href="{{-- route('login') --}}" class="btn btn-outline-light mr-2">ログイン</a>
+          @if(auth()->check())
+            {{-- ログイン中の場合 --}}
+            <a href="{{-- route('mypage') --}}" class="btn btn-outline-light mr-2">マイページ</a>
+            <form action="{{ route('logout') }}" method="POST" class="d-inline">
+              @csrf
+              <button type="submit" class="btn btn-outline-light mr-2">ログアウト</button>
+            </form>
+          @else
+            {{-- 未ログインの場合 --}}
+            <a href="{{ route('pre_register') }}" class="btn btn-outline-light mr-2">新規登録</a>
+            <a href="{{ route('login') }}" class="btn btn-outline-light mr-2">ログイン</a>
+          @endif
           <a href="{{-- route('cart') --}}" class="btn btn-outline-light">
             <i class="fas fa-shopping-cart"></i> カート
           </a>

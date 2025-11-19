@@ -34,3 +34,8 @@ Route::post('/pre-register', 'Auth\PreRegistrationController@store')->name('pre_
 // 仮登録の確認リンク／本登録
 Route::get('/pre-register/confirm/{token}', 'Auth\\PreRegistrationController@confirm')->name('pre_register_confirm');
 Route::post('/pre-register/complete', 'Auth\\PreRegistrationController@complete')->name('pre_register_complete');
+
+// ログイン・ログアウト
+Route::get('/login', 'Auth\\LoginController@showLoginForm')->name('login');
+Route::post('/login', 'Auth\\LoginController@login')->name('login_do');
+Route::post('/logout', 'Auth\\LoginController@logout')->name('logout');
