@@ -49,12 +49,16 @@
       @foreach ($goods_list as $goods)
       <div class="col-md-3 mb-4">
         <div class="card h-100">
-          <img class="card-img-top" src="{{ asset('public/product-image/dummy.png') }}" alt="商品画像">
+          <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="text-decoration-none">
+            <img class="card-img-top" src="{{ asset('public/product-image/dummy.png') }}" alt="商品画像">
+          </a>
           <div class="card-body d-flex flex-column">
-            <h5 class="card-title">{{ $goods->goods_name }}</h5>
+            <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="text-decoration-none text-dark">
+              <h5 class="card-title">{{ $goods->goods_name }}</h5>
+            </a>
             <p class="card-text mb-1">価格: ¥{{ number_format($goods->goods_price) }}</p>
             <p class="card-text mb-1">在庫: {{ $goods->goods_stock }}個</p>
-           {{-- <a href="{{ route('goods_detail', ['id' => $goods->un_id]) }}" class="btn btn-primary mt-auto">詳細を見る</a>--}}
+            <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="btn btn-primary mt-auto">詳細を見る</a>
           </div>
         </div>
       </div>
