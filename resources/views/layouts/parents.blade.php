@@ -266,7 +266,7 @@
         <div class="ml-auto d-flex align-items-center">
           @if(auth()->check())
             {{-- ログイン中の場合 --}}
-            <a href="{{-- route('mypage') --}}" class="btn btn-outline-light mr-2">マイページ</a>
+            <a href="{{ route('mypage') }}" class="btn btn-outline-light mr-2">マイページ</a>
             <form action="{{ route('logout') }}" method="POST" class="d-inline">
               @csrf
               <button type="submit" class="btn btn-outline-light mr-2">ログアウト</button>
@@ -276,7 +276,7 @@
             <a href="{{ route('pre_register') }}" class="btn btn-outline-light mr-2">新規登録</a>
             <a href="{{ route('login') }}" class="btn btn-outline-light mr-2">ログイン</a>
           @endif
-          <a href="{{-- route('cart') --}}" class="btn btn-outline-light">
+          <a href="{{ route('cart') }}" class="btn btn-outline-light">
             <i class="fas fa-shopping-cart"></i> カート
           </a>
         </div>

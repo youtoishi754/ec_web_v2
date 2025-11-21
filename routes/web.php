@@ -46,3 +46,6 @@ Route::post('/cart/add', 'Cart\\CartController@add')->name('cart_add');
 Route::get('/cart', 'Cart\\CartController@index')->name('cart');
 Route::post('/cart/remove', 'Cart\\CartController@remove')->name('cart_remove');
 Route::post('/cart/clear', 'Cart\\CartController@clear')->name('cart_clear');
+
+// マイページ
+Route::get('/mypage', 'MypageController@index')->name('mypage');
