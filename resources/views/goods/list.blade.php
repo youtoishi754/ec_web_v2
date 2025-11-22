@@ -63,8 +63,24 @@
               <form action="{{ route('cart_add') }}" method="POST" class="mt-auto mb-2">
                 @csrf
                 <input type="hidden" name="goods_id" value="{{ $goods->id }}">
-                <input type="hidden" name="quantity" value="1">
-                <button type="submit" class="btn btn-success btn-block">
+                <input type="hidden" name="quantity" class="quantity-input" value="1">
+                <div class="form-row align-items-center mb-2">
+                  <div class="col-12">
+                    <div class="d-flex align-items-center justify-content-between">
+                      <span class="small">数量:</span>
+                      <div class="d-flex align-items-center">
+                        <button type="button" class="btn btn-sm btn-outline-secondary btn-quantity-decrease" data-max="{{ $goods->goods_stock }}" disabled>
+                          <i class="fas fa-minus"></i>
+                        </button>
+                        <span class="mx-2 quantity-display">1</span>
+                        <button type="button" class="btn btn-sm btn-outline-secondary btn-quantity-increase" data-max="{{ $goods->goods_stock }}">
+                          <i class="fas fa-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button type="submit" class="btn btn-success btn-block btn-sm">
                   <i class="fas fa-shopping-cart"></i> カートに追加
                 </button>
               </form>
@@ -84,4 +100,61 @@
 </div>
   
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // 数量増加ボタン
+  document.querySelectorAll('.btn-quantity-increase').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const form = this.closest('form');
+      const quantityInput = form.querySelector('.quantity-input');
+      const quantityDisplay = form.querySelector('.quantity-display');
+      const decreaseBtn = form.querySelector('.btn-quantity-decrease');
+      const maxStock = parseInt(this.getAttribute('data-max'));
+      
+      let currentQuantity = parseInt(quantityInput.value);
+      
+      if (currentQuantity < maxStock) {
+        currentQuantity++;
+        quantityInput.value = currentQuantity;
+        quantityDisplay.textContent = currentQuantity;
+        
+        // 減少ボタンを有効化
+        decreaseBtn.disabled = false;
+        
+        // 最大値に達したら増加ボタンを無効化
+        if (currentQuantity >= maxStock) {
+          this.disabled = true;
+        }
+      }
+    });
+  });
+  
+  // 数量減少ボタン
+  document.querySelectorAll('.btn-quantity-decrease').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      const form = this.closest('form');
+      const quantityInput = form.querySelector('.quantity-input');
+      const quantityDisplay = form.querySelector('.quantity-display');
+      const increaseBtn = form.querySelector('.btn-quantity-increase');
+      
+      let currentQuantity = parseInt(quantityInput.value);
+      
+      if (currentQuantity > 1) {
+        currentQuantity--;
+        quantityInput.value = currentQuantity;
+        quantityDisplay.textContent = currentQuantity;
+        
+        // 増加ボタンを有効化
+        increaseBtn.disabled = false;
+        
+        // 最小値に達したら減少ボタンを無効化
+        if (currentQuantity <= 1) {
+          this.disabled = true;
+        }
+      }
+    });
+  });
+});
+</script>
 @endsection

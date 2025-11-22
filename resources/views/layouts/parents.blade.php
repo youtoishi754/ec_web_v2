@@ -302,6 +302,7 @@
     </div>
   </nav>
   
+  @if(isSessionDebugEnabled())
   {{-- セッションデバッグ情報 --}}
   <div class="container mt-3">
     <div class="card bg-light">
@@ -325,6 +326,7 @@
       </div>
     </div>
   </div>
+  @endif
   
   @yield('content')
 

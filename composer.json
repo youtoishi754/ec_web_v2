@@ -41,7 +41,8 @@
             "database/factories"
         ],
         "files":[
-            "app/DBManager.php"
+            "app/DBManager.php",
+            "app/DebugConfig.php"
         ]
         
     },
