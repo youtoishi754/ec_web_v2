@@ -276,8 +276,20 @@
             <a href="{{ route('pre_register') }}" class="btn btn-outline-light mr-2">新規登録</a>
             <a href="{{ route('login') }}" class="btn btn-outline-light mr-2">ログイン</a>
           @endif
-          <a href="{{ route('cart') }}" class="btn btn-outline-light">
+          <a href="{{ route('cart') }}" class="btn btn-outline-light position-relative">
             <i class="fas fa-shopping-cart"></i> カート
+            @php
+              $cart = session()->get('cart', []);
+              $totalItems = 0;
+              foreach($cart as $item) {
+                $totalItems += $item['quantity'];
+              }
+            @endphp
+            @if($totalItems > 0)
+              <span class="position-absolute badge badge-danger rounded-circle" style="top: -5px; right: -5px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 12px; font-weight: bold; text-align: center;">
+                {{ $totalItems }}
+              </span>
+            @endif
           </a>
         </div>
       </div>

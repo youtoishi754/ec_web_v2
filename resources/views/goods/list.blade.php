@@ -58,7 +58,23 @@
             </a>
             <p class="card-text mb-1">価格: ¥{{ number_format($goods->goods_price) }}</p>
             <p class="card-text mb-1">在庫: {{ $goods->goods_stock }}個</p>
-            <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="btn btn-primary mt-auto">詳細を見る</a>
+            
+            @if($goods->goods_stock > 0)
+              <form action="{{ route('cart_add') }}" method="POST" class="mt-auto mb-2">
+                @csrf
+                <input type="hidden" name="goods_id" value="{{ $goods->id }}">
+                <input type="hidden" name="quantity" value="1">
+                <button type="submit" class="btn btn-success btn-block">
+                  <i class="fas fa-shopping-cart"></i> カートに追加
+                </button>
+              </form>
+            @else
+              <button class="btn btn-secondary btn-block mt-auto mb-2" disabled>
+                在庫切れ
+              </button>
+            @endif
+            
+            <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="btn btn-primary">詳細を見る</a>
           </div>
         </div>
       </div>
