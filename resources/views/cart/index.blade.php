@@ -33,7 +33,6 @@
     </div>
     <a href="{{ route('goods_list') }}" class="btn btn-primary">商品一覧へ</a>
   @else
-    <form action="{{ route('cart') }}" method="GET" id="cart-form">
     <div class="table-responsive mt-4">
       <table class="table table-bordered">
         <thead class="thead-light">
@@ -72,7 +71,7 @@
               <form action="{{ route('cart_remove') }}" method="POST" class="d-inline">
                 @csrf
                 <input type="hidden" name="goods_id" value="{{ $item['goods_id'] }}">
-                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('この商品をカートから削除しますか？')">削除</button>
+                <button type="submit" class="btn btn-sm btn-danger">削除</button>
               </form>
             </td>
           </tr>
@@ -86,7 +85,6 @@
         </tfoot>
       </table>
     </div>
-    </form>
 
     <div class="row mt-4">
       <div class="col-md-6">

@@ -85,6 +85,7 @@ class CartController extends BaseController
 
         foreach ($cart as $item) {
             $total += $item['goods_price'] * $item['quantity'];
+            
         }
 
         return view('cart.index', [
