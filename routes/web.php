@@ -47,5 +47,16 @@ Route::get('/cart', 'Cart\\CartController@index')->name('cart');
 Route::post('/cart/remove', 'Cart\\CartController@remove')->name('cart_remove');
 Route::post('/cart/clear', 'Cart\\CartController@clear')->name('cart_clear');
 
-// マイページ
-Route::get('/mypage', 'MypageController@index')->name('mypage');
+// マイページ（認証必須）
+Route::middleware('auth')->group(function () {
+    Route::get('/mypage', 'MypageController@index')->name('mypage');
+    
+    // パスワード変更
+    Route::post('/mypage/password', 'MypageController@updatePassword')->name('mypage_password_update');
+    
+    // メールアドレス変更
+    Route::post('/mypage/email', 'MypageController@updateEmail')->name('mypage_email_update');
+    
+    // 退会
+    Route::post('/mypage/delete', 'MypageController@delete')->name('mypage_delete');
+});

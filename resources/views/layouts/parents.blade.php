@@ -266,7 +266,9 @@
         <div class="ml-auto d-flex align-items-center">
           @if(auth()->check())
             {{-- ログイン中の場合 --}}
-            <a href="{{ route('mypage') }}" class="btn btn-outline-light mr-2">マイページ</a>
+            <a href="{{ route('mypage') }}" class="btn btn-outline-light mr-2">
+              <i class="fas fa-user"></i> マイページ
+            </a>
             <form action="{{ route('logout') }}" method="POST" class="d-inline">
               @csrf
               <button type="submit" class="btn btn-outline-light mr-2">ログアウト</button>
