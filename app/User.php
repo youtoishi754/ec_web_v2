@@ -36,4 +36,20 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * 有効なユーザーのみ取得するスコープ
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('delete_flg', 0);
+    }
+
+    /**
+     * 削除済みかチェック
+     */
+    public function isDeleted()
+    {
+        return $this->delete_flg == 1;
+    }
 }

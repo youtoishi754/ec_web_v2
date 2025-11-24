@@ -31,7 +31,14 @@ class PreRegistrationController extends BaseController
             'email' => 'required|email|max:255|unique:users,email',
         ];
 
-        $validator = Validator::make($request->all(), $rules);
+        $messages = [
+            'email.required' => 'メールアドレスを入力してください。',
+            'email.email' => '有効なメールアドレスを入力してください。',
+            'email.max' => 'メールアドレスは255文字以内で入力してください。',
+            'email.unique' => 'このメールアドレスは既に使用されています。',
+        ];
+
+        $validator = Validator::make($request->all(), $rules, $messages);
 
         if ($validator->fails()) {
             return redirect()->back()->withErrors($validator)->withInput();

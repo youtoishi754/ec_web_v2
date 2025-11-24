@@ -136,8 +136,9 @@ class MypageController extends BaseController
         // ログアウト
         Auth::logout();
 
-        // ユーザーを削除
-        $user->delete();
+        // ユーザーを論理削除（delete_flgを1に設定）
+        $user->delete_flg = 1;
+        $user->save();
 
         // セッションをクリア
         $request->session()->invalidate();

@@ -39,6 +39,15 @@ class LoginController extends BaseController
             return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // 退会済みユーザーのチェック
+        $user = \App\User::where('email', $request->email)->first();
+
+        if ($user && $user->delete_flg == 1) {
+            return redirect()->back()
+                ->withErrors(['email' => 'このアカウントは退会済みです。'])
+                ->withInput($request->only('email'));
+        }
+
         // ログイン試行
         $credentials = $request->only('email', 'password');
         $remember = $request->has('remember');
