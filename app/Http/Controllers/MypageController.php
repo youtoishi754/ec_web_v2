@@ -146,4 +146,66 @@ class MypageController extends BaseController
 
         return redirect()->route('index')->with('success', '退会処理が完了しました。ご利用ありがとうございました。');
     }
+
+    /**
+     * プロフィール更新処理
+     */
+    public function updateProfile(Request $request)
+    {
+        // バリデーション
+        $validator = Validator::make($request->all(), [
+            'last_name' => 'required|string|max:50',
+            'first_name' => 'required|string|max:50',
+            'last_name_kana' => 'required|string|max:50|regex:/^[ァ-ヶー]+$/u',
+            'first_name_kana' => 'required|string|max:50|regex:/^[ァ-ヶー]+$/u',
+            'postal_code' => 'required|string|regex:/^\d{3}-?\d{4}$/',
+            'prefecture' => 'required|string|max:10',
+            'city' => 'required|string|max:50',
+            'address' => 'required|string|max:100',
+            'building' => 'nullable|string|max:100',
+            'phone' => 'required|string|regex:/^0\d{9,10}$/',
+            'birthday' => 'nullable|date|before:today',
+            'gender' => 'nullable|integer|in:0,1,2',
+        ], [
+            'last_name.required' => '姓を入力してください。',
+            'first_name.required' => '名を入力してください。',
+            'last_name_kana.required' => '姓（カナ）を入力してください。',
+            'last_name_kana.regex' => '姓（カナ）は全角カタカナで入力してください。',
+            'first_name_kana.required' => '名（カナ）を入力してください。',
+            'first_name_kana.regex' => '名（カナ）は全角カタカナで入力してください。',
+            'postal_code.required' => '郵便番号を入力してください。',
+            'postal_code.regex' => '郵便番号は7桁の数字で入力してください。',
+            'prefecture.required' => '都道府県を選択してください。',
+            'city.required' => '市区町村を入力してください。',
+            'address.required' => '番地を入力してください。',
+            'phone.required' => '電話番号を入力してください。',
+            'phone.regex' => '電話番号は10桁または11桁の数字で入力してください。',
+            'birthday.date' => '有効な日付を入力してください。',
+            'birthday.before' => '生年月日は今日より前の日付を入力してください。',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('mypage')->withErrors($validator)->withInput();
+        }
+
+        $user = Auth::user();
+
+        // プロフィールを更新
+        $user->name = $request->last_name . ' ' . $request->first_name;
+        $user->last_name = $request->last_name;
+        $user->first_name = $request->first_name;
+        $user->last_name_kana = $request->last_name_kana;
+        $user->first_name_kana = $request->first_name_kana;
+        $user->postal_code = $request->postal_code;
+        $user->prefecture = $request->prefecture;
+        $user->city = $request->city;
+        $user->address = $request->address;
+        $user->building = $request->building;
+        $user->phone = $request->phone;
+        $user->birthday = $request->birthday;
+        $user->gender = $request->gender;
+        $user->save();
+
+        return redirect()->route('mypage')->with('success', 'プロフィールを更新しました。');
+    }
 }

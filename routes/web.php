@@ -57,6 +57,9 @@ Route::middleware('auth')->group(function () {
     // メールアドレス変更
     Route::post('/mypage/email', 'MypageController@updateEmail')->name('mypage_email_update');
     
+    // プロフィール更新
+    Route::post('/mypage/profile', 'MypageController@updateProfile')->name('mypage_profile_update');
+    
     // 退会
     Route::post('/mypage/delete', 'MypageController@delete')->name('mypage_delete');
 });

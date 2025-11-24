@@ -35,30 +35,78 @@
           <h5 class="mb-0"><i class="fas fa-user"></i> ユーザー情報</h5>
         </div>
         <div class="card-body">
-          <table class="table table-borderless">
+          <table class="table table-borderless table-sm">
             <tr>
-              <th style="width: 30%;">名前</th>
-              <td>{{ auth()->user()->name }}</td>
+              <th style="width: 35%;">お名前</th>
+              <td>
+                @if(auth()->user()->last_name || auth()->user()->first_name)
+                  {{ auth()->user()->last_name }} {{ auth()->user()->first_name }}
+                @endif
+              </td>
+            </tr>
+            <tr>
+              <th>フリガナ</th>
+              <td>
+                @if(auth()->user()->last_name_kana || auth()->user()->first_name_kana)
+                  {{ auth()->user()->last_name_kana }} {{ auth()->user()->first_name_kana }}
+                @endif
+              </td>
             </tr>
             <tr>
               <th>メールアドレス</th>
               <td>{{ auth()->user()->email }}</td>
             </tr>
             <tr>
-              <th>会員登録日</th>
-              <td>{{ auth()->user()->created_at->format('Y年m月d日') }}</td>
+              <th>電話番号</th>
+              <td>{{ auth()->user()->phone }}</td>
             </tr>
             <tr>
-              <th>メール認証</th>
+              <th>郵便番号</th>
+              <td>{{ auth()->user()->postal_code }}</td>
+            </tr>
+            <tr>
+              <th>ご住所</th>
               <td>
-                @if(auth()->user()->email_verified_at)
-                  <span class="badge badge-success">認証済み</span>
-                @else
-                  <span class="badge badge-warning">未認証</span>
+                @if(auth()->user()->prefecture || auth()->user()->city || auth()->user()->address)
+                  {{ auth()->user()->prefecture }}{{ auth()->user()->city }}{{ auth()->user()->address }}
+                  @if(auth()->user()->building)
+                    <br>{{ auth()->user()->building }}
+                  @endif
                 @endif
               </td>
             </tr>
+            <tr>
+              <th>生年月日</th>
+              <td>
+                @if(auth()->user()->birthday)
+                  {{ \Carbon\Carbon::parse(auth()->user()->birthday)->format('Y年m月d日') }}
+                @endif
+              </td>
+            </tr>
+            <tr>
+              <th>性別</th>
+              <td>
+                @if(auth()->user()->gender !== null)
+                  @if(auth()->user()->gender == 1)
+                    男性
+                  @elseif(auth()->user()->gender == 2)
+                    女性
+                  @else
+                    その他
+                  @endif
+                @endif
+              </td>
+            </tr>
+            <tr>
+              <th>会員登録日</th>
+              <td>{{ auth()->user()->created_at->format('Y年m月d日') }}</td>
+            </tr>
           </table>
+          <div class="text-center mt-3">
+            <button class="btn btn-primary btn-sm" data-toggle="modal" data-target="#profileModal">
+              <i class="fas fa-edit"></i> プロフィール編集
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -158,6 +206,163 @@
     <a href="{{ route('goods_list') }}" class="btn btn-primary btn-lg">
       <i class="fas fa-shopping-cart"></i> 商品一覧へ
     </a>
+  </div>
+</div>
+
+{{-- プロフィール編集モーダル --}}
+<div class="modal fade" id="profileModal" tabindex="-1" role="dialog" aria-labelledby="profileModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="profileModalLabel"><i class="fas fa-edit"></i> プロフィール編集</h5>
+        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <form action="{{ route('mypage_profile_update') }}" method="POST">
+        @csrf
+        <div class="modal-body">
+          {{-- お名前 --}}
+          <h6 class="border-bottom pb-2 mb-3"><i class="fas fa-user"></i> お名前</h6>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="last_name">姓 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control @error('last_name') is-invalid @enderror" 
+                       id="last_name" name="last_name" value="{{ old('last_name', auth()->user()->last_name) }}" required>
+                @error('last_name')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="first_name">名 <span class="text-danger">*</span></label>
+                <input type="text" class="form-control @error('first_name') is-invalid @enderror" 
+                       id="first_name" name="first_name" value="{{ old('first_name', auth()->user()->first_name) }}" required>
+                @error('first_name')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="last_name_kana">姓（カナ） <span class="text-danger">*</span></label>
+                <input type="text" class="form-control @error('last_name_kana') is-invalid @enderror" 
+                       id="last_name_kana" name="last_name_kana" value="{{ old('last_name_kana', auth()->user()->last_name_kana) }}" placeholder="ヤマダ" required>
+                @error('last_name_kana')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-group">
+                <label for="first_name_kana">名（カナ） <span class="text-danger">*</span></label>
+                <input type="text" class="form-control @error('first_name_kana') is-invalid @enderror" 
+                       id="first_name_kana" name="first_name_kana" value="{{ old('first_name_kana', auth()->user()->first_name_kana) }}" placeholder="タロウ" required>
+                @error('first_name_kana')
+                  <div class="invalid-feedback">{{ $message }}</div>
+                @enderror
+              </div>
+            </div>
+          </div>
+
+          {{-- ご住所 --}}
+          <h6 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-map-marker-alt"></i> ご住所</h6>
+          <div class="form-group">
+            <label for="postal_code">郵便番号 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control @error('postal_code') is-invalid @enderror" 
+                   id="postal_code" name="postal_code" value="{{ old('postal_code', auth()->user()->postal_code) }}" placeholder="123-4567" required>
+            @error('postal_code')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+          <div class="form-group">
+            <label for="prefecture">都道府県 <span class="text-danger">*</span></label>
+            <select name="prefecture" id="prefecture" class="form-control @error('prefecture') is-invalid @enderror" required>
+              <option value="">選択してください</option>
+              @php
+                $prefectures = ['北海道', '青森県', '岩手県', '宮城県', '秋田県', '山形県', '福島県', '茨城県', '栃木県', '群馬県', '埼玉県', '千葉県', '東京都', '神奈川県', '新潟県', '富山県', '石川県', '福井県', '山梨県', '長野県', '岐阜県', '静岡県', '愛知県', '三重県', '滋賀県', '京都府', '大阪府', '兵庫県', '奈良県', '和歌山県', '鳥取県', '島根県', '岡山県', '広島県', '山口県', '徳島県', '香川県', '愛媛県', '高知県', '福岡県', '佐賀県', '長崎県', '熊本県', '大分県', '宮崎県', '鹿児島県', '沖縄県'];
+                $currentPrefecture = old('prefecture', auth()->user()->prefecture);
+              @endphp
+              @foreach($prefectures as $pref)
+                <option value="{{ $pref }}" {{ $currentPrefecture == $pref ? 'selected' : '' }}>{{ $pref }}</option>
+              @endforeach
+            </select>
+            @error('prefecture')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+          <div class="form-group">
+            <label for="city">市区町村 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control @error('city') is-invalid @enderror" 
+                   id="city" name="city" value="{{ old('city', auth()->user()->city) }}" placeholder="渋谷区" required>
+            @error('city')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+          <div class="form-group">
+            <label for="address">番地 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control @error('address') is-invalid @enderror" 
+                   id="address" name="address" value="{{ old('address', auth()->user()->address) }}" placeholder="道玄坂1-2-3" required>
+            @error('address')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+          <div class="form-group">
+            <label for="building">建物名・部屋番号</label>
+            <input type="text" class="form-control @error('building') is-invalid @enderror" 
+                   id="building" name="building" value="{{ old('building', auth()->user()->building) }}" placeholder="○○マンション101号">
+            @error('building')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+
+          {{-- 連絡先 --}}
+          <h6 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-phone"></i> 連絡先</h6>
+          <div class="form-group">
+            <label for="phone">電話番号 <span class="text-danger">*</span></label>
+            <input type="tel" class="form-control @error('phone') is-invalid @enderror" 
+                   id="phone" name="phone" value="{{ old('phone', auth()->user()->phone) }}" placeholder="09012345678" required>
+            @error('phone')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+
+          {{-- その他の情報 --}}
+          <h6 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-info-circle"></i> その他の情報（任意）</h6>
+          <div class="form-group">
+            <label for="birthday">生年月日</label>
+            <input type="date" class="form-control @error('birthday') is-invalid @enderror" 
+                   id="birthday" name="birthday" value="{{ old('birthday', auth()->user()->birthday) }}">
+            @error('birthday')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+          <div class="form-group">
+            <label for="gender">性別</label>
+            <select name="gender" id="gender" class="form-control @error('gender') is-invalid @enderror">
+              @php $currentGender = old('gender', auth()->user()->gender); @endphp
+              <option value="">選択しない</option>
+              <option value="1" {{ $currentGender == '1' ? 'selected' : '' }}>男性</option>
+              <option value="2" {{ $currentGender == '2' ? 'selected' : '' }}>女性</option>
+              <option value="0" {{ $currentGender == '0' ? 'selected' : '' }}>その他</option>
+            </select>
+            @error('gender')
+              <div class="invalid-feedback">{{ $message }}</div>
+            @enderror
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">キャンセル</button>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> 更新する
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 </div>
 
@@ -321,7 +526,11 @@
 
 <script>
 // エラーがある場合、該当するモーダルを自動的に開く
-@if ($errors->has('current_password') || $errors->has('new_password'))
+@if ($errors->has('last_name') || $errors->has('first_name') || $errors->has('postal_code') || $errors->has('phone'))
+  $(document).ready(function() {
+    $('#profileModal').modal('show');
+  });
+@elseif ($errors->has('current_password') || $errors->has('new_password'))
   $(document).ready(function() {
     $('#passwordModal').modal('show');
   });
