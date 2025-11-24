@@ -287,6 +287,28 @@
     color: white;
     font-size: 0.9rem;
   }
+  
+  {{-- カートバッジのスタイル --}}
+  .cart-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background-color: white;
+    color: #c94341;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  
+  .cart-link {
+    position: relative;
+  }
   </style>
   <script>
   // ensure body has top padding equal to fixed navbar height to avoid overlap
@@ -353,7 +375,7 @@
             </li>
           @endif
           <li class="nav-item">
-            <a class="nav-link" href="{{ route('cart') }}">
+            <a class="nav-link cart-link" href="{{ route('cart') }}">
               <i class="fas fa-shopping-cart"></i> CART
               @php
                 $cart = session()->get('cart', []);
@@ -363,7 +385,7 @@
                 }
               @endphp
               @if($totalItems > 0)
-                <span class="badge badge-light ml-1">{{ $totalItems }}</span>
+                <span class="cart-badge">{{ $totalItems }}</span>
               @endif
             </a>
           </li>
