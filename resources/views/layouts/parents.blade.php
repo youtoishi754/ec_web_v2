@@ -225,12 +225,68 @@
   display: flex;
   flex-direction: column;
   /* fixed-top のナビバー分の余白を確保（ナビの高さに合わせて調整） */
-  padding-top: 120px;
+  padding-top: 80px;
   }
   .container
   {
     flex:1;
-  } 
+  }
+  
+  {{-- ヘッダーのスタイル --}}
+  .site-header {
+    background: linear-gradient(135deg, #c94341 0%, #d85f5d 100%);
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  }
+  
+  .site-header .navbar-brand {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white !important;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .site-header .navbar-brand i {
+    font-size: 2.5rem;
+  }
+  
+  .site-header .nav-link {
+    color: white !important;
+    font-weight: 500;
+    font-size: 1.1rem;
+    padding: 0.5rem 1.5rem !important;
+    transition: all 0.3s ease;
+  }
+  
+  .site-header .nav-link:hover {
+    background-color: rgba(255,255,255,0.2);
+    border-radius: 5px;
+  }
+  
+  {{-- フッターのスタイル --}}
+  .site-footer {
+    background: linear-gradient(135deg, #c94341 0%, #d85f5d 100%);
+    box-shadow: 0 -4px 6px rgba(0,0,0,0.1);
+    padding: 2rem 0;
+  }
+  
+  .site-footer a {
+    color: white !important;
+    text-decoration: none;
+    font-weight: 500;
+    transition: opacity 0.3s ease;
+  }
+  
+  .site-footer a:hover {
+    opacity: 0.8;
+    text-decoration: underline;
+  }
+  
+  .site-footer .copyright {
+    color: white;
+    font-size: 0.9rem;
+  }
   </style>
   <script>
   // ensure body has top padding equal to fixed navbar height to avoid overlap
@@ -256,50 +312,62 @@
 </head>
 <body>
  {{-- ナビゲーション --}}
- <nav class="navbar fixed-top navbar-expand-lg navbar-dark bg-dark fixed-top">
-    <div class="container d-flex flex-column">
-      <div class="d-flex align-items-center w-100">
-        <a class="navbar-brand" href="{{route('index')}}">サンプルECサイト</a>
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="ml-auto d-flex align-items-center">
+ <nav class="navbar fixed-top navbar-expand-lg site-header">
+    <div class="container">
+      <a class="navbar-brand" href="{{route('index')}}">
+        <i class="fas fa-shopping-cart"></i>
+        SHOPPING SITE
+      </a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarResponsive">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="{{route('index')}}">HOME</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{{route('goods_list')}}">SHOP</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">ABOUT</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">CONTACT</a>
+          </li>
           @if(auth()->check())
-            {{-- ログイン中の場合 --}}
-            <a href="{{ route('mypage') }}" class="btn btn-outline-light mr-2">
-              <i class="fas fa-user"></i> マイページ
-            </a>
-            <form action="{{ route('logout') }}" method="POST" class="d-inline">
-              @csrf
-              <button type="submit" class="btn btn-outline-light mr-2">ログアウト</button>
-            </form>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ route('mypage') }}">
+                <i class="fas fa-user"></i> MYPAGE
+              </a>
+            </li>
+            <li class="nav-item">
+              <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="nav-link btn btn-link" style="color: white !important;">LOGOUT</button>
+              </form>
+            </li>
           @else
-            {{-- 未ログインの場合 --}}
-            <a href="{{ route('pre_register') }}" class="btn btn-outline-light mr-2">新規登録</a>
-            <a href="{{ route('login') }}" class="btn btn-outline-light mr-2">ログイン</a>
+            <li class="nav-item">
+              <a class="nav-link" href="{{ route('login') }}">LOGIN</a>
+            </li>
           @endif
-          <a href="{{ route('cart') }}" class="btn btn-outline-light position-relative">
-            <i class="fas fa-shopping-cart"></i> カート
-            @php
-              $cart = session()->get('cart', []);
-              $totalItems = 0;
-              foreach($cart as $item) {
-                $totalItems += $item['quantity'];
-              }
-            @endphp
-            @if($totalItems > 0)
-              <span class="position-absolute badge badge-danger rounded-circle" style="top: -5px; right: -5px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; padding: 0; font-size: 12px; font-weight: bold; text-align: center;">
-                {{ $totalItems }}
-              </span>
-            @endif
-          </a>
-        </div>
-      </div>
-      <div class="w-100 d-flex mt-2">
-        <a href="{{route('index')}}" class="btn btn-outline-light flex-fill mx-1 d-flex align-items-center justify-content-center">トップ</a>
-        <a href="{{route('goods_list')}}" class="btn btn-outline-light flex-fill mx-1 d-flex align-items-center justify-content-center">商品一覧</a>
-        <a href="#" class="btn btn-outline-light flex-fill mx-1 d-flex align-items-center justify-content-center">お問い合わせ</a>
-        <a href="#" class="btn btn-outline-light flex-fill mx-1 d-flex align-items-center justify-content-center">よくある質問</a>
+          <li class="nav-item">
+            <a class="nav-link" href="{{ route('cart') }}">
+              <i class="fas fa-shopping-cart"></i> CART
+              @php
+                $cart = session()->get('cart', []);
+                $totalItems = 0;
+                foreach($cart as $item) {
+                  $totalItems += $item['quantity'];
+                }
+              @endphp
+              @if($totalItems > 0)
+                <span class="badge badge-light ml-1">{{ $totalItems }}</span>
+              @endif
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </nav>
@@ -333,9 +401,19 @@
   @yield('content')
 
   {{-- フッター --}}
-  <footer class="py-3 bg-dark absolute-bottom">
+  <footer class="site-footer">
     <div class="container">
-      <p class="m-0 text-center text-white">Copyright &copy; 2025 Yuta All Rights Reserved.</p>
+      <div class="row">
+        <div class="col-md-6 text-center text-md-left mb-3 mb-md-0">
+          <p class="copyright mb-0">© 2024 SHOPPING SITE</p>
+        </div>
+        <div class="col-md-6 text-center text-md-right">
+          <a href="#" class="mx-2">PRIVACY POLICY</a>
+          <a href="#" class="mx-2">TERMS OF SERVICE</a>
+          <a href="#" class="mx-2">FAQ</a>
+          <a href="#" class="mx-2">CONTACT</a>
+        </div>
+      </div>
     </div>
   </footer>
 </body>
