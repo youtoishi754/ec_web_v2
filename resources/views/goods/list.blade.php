@@ -47,7 +47,7 @@
     <div class="row">
       {{-- 商品リスト --}}  
       @foreach ($goods_list as $goods)
-      <div class="col-md-3 mb-4">
+      <div class="col-lg-3 col-md-4 col-sm-6 col-12 mb-4">
         <div class="card h-100">
           <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="text-decoration-none">
             <img class="card-img-top" src="{{ asset('public/product-image/dummy.png') }}" alt="商品画像">
@@ -196,9 +196,11 @@ $(document).ready(function() {
           if (isFavorited) {
             btn.data('favorited', 'false');
             btn.find('i').removeClass('fas').addClass('far');
+            btn.removeClass('btn-warning').addClass('btn-outline-warning');
           } else {
             btn.data('favorited', 'true');
             btn.find('i').removeClass('far').addClass('fas');
+            btn.removeClass('btn-outline-warning').addClass('btn-warning');
           }
         } else {
           alert(response.message);

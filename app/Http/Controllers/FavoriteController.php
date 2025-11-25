@@ -33,7 +33,12 @@ class FavoriteController extends BaseController
             ->exists();
 
         if ($exists) {
-            return response()->json(['success' => false, 'message' => '既にお気に入りに登録されています。']);
+            // 既に登録済みの場合も成功として返す
+            $count = Favorite::where('user_id', $user->id)->count();
+            return response()->json([
+                'success' => true, 
+                'count' => $count
+            ]);
         }
 
         // お気に入りに追加
@@ -42,7 +47,13 @@ class FavoriteController extends BaseController
             'goods_id' => $goodsId,
         ]);
 
-        return response()->json(['success' => true, 'message' => 'お気に入りに追加しました。']);
+        // 現在のお気に入り数を取得
+        $count = Favorite::where('user_id', $user->id)->count();
+
+        return response()->json([
+            'success' => true, 
+            'count' => $count
+        ]);
     }
 
     /**
@@ -58,11 +69,19 @@ class FavoriteController extends BaseController
         $user = Auth::user();
 
         // お気に入りから削除
-        Favorite::where('user_id', $user->id)
+        $deleted = Favorite::where('user_id', $user->id)
             ->where('goods_id', $goodsId)
             ->delete();
 
-        return response()->json(['success' => true, 'message' => 'お気に入りから削除しました。']);
+        // 現在のお気に入り数を取得
+        $count = Favorite::where('user_id', $user->id)->count();
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'お気に入りから削除しました。',
+            'count' => $count,
+            'deleted' => $deleted
+        ]);
     }
 
     /**

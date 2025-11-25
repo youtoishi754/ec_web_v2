@@ -309,6 +309,235 @@
   .cart-link {
     position: relative;
   }
+  
+  {{-- ハンバーガーメニューアイコンのスタイル --}}
+  .navbar-toggler {
+    border-color: rgba(255,255,255,0.5);
+    background-color: rgba(255,255,255,0.1);
+  }
+  
+  .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 1%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+  }
+  
+  .navbar-toggler:focus {
+    outline: none;
+    box-shadow: 0 0 0 0.2rem rgba(255,255,255,0.25);
+  }
+  
+  {{-- スマホ対応のレスポンシブスタイル --}}
+  @media (max-width: 768px) {
+    body {
+      padding-top: 60px;
+    }
+    
+    .site-header .navbar-brand {
+      font-size: 1.2rem;
+    }
+    
+    .site-header .navbar-brand i {
+      font-size: 1.5rem;
+    }
+    
+    .site-header .nav-link {
+      font-size: 1rem;
+      padding: 0.5rem 1rem !important;
+    }
+    
+    .container {
+      padding-left: 10px;
+      padding-right: 10px;
+    }
+    
+    h2 {
+      font-size: 1.5rem;
+    }
+    
+    h3 {
+      font-size: 1.3rem;
+    }
+    
+    .card-title {
+      font-size: 1rem;
+    }
+    
+    .btn {
+      font-size: 0.9rem;
+      padding: 0.4rem 0.8rem;
+    }
+    
+    .breadcrumb {
+      font-size: 0.85rem;
+      padding: 0.5rem 0.75rem;
+    }
+    
+    {{-- 商品一覧のカード --}}
+    .col-md-3 {
+      margin-bottom: 1rem;
+    }
+    
+    {{-- マイページのカード --}}
+    .col-md-6 {
+      margin-bottom: 1rem;
+    }
+    
+    {{-- テーブルをスクロール可能に --}}
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    table {
+      font-size: 0.85rem;
+    }
+    
+    {{-- フッター --}}
+    .site-footer {
+      font-size: 0.85rem;
+      padding: 1rem 0;
+    }
+    
+    .site-footer a {
+      display: block;
+      margin: 0.3rem 0;
+    }
+  }
+  
+  @media (max-width: 576px) {
+    .site-header .navbar-brand {
+      font-size: 1rem;
+    }
+    
+    h2 {
+      font-size: 1.3rem;
+    }
+    
+    h3 {
+      font-size: 1.1rem;
+    }
+    
+    .btn {
+      font-size: 0.85rem;
+      padding: 0.35rem 0.7rem;
+    }
+    
+    {{-- カート内の商品情報 --}}
+    .cart-item-img {
+      max-width: 80px;
+    }
+    
+    /* Product list grid adjustments */
+    .list .col-md-3 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    
+    /* Sort form on mobile */
+    .form-inline {
+      display: block !important;
+    }
+    .form-inline label,
+    .form-inline select,
+    .form-inline input,
+    .form-inline button {
+      display: block;
+      width: 100%;
+      margin: 5px 0 !important;
+    }
+    
+    /* Product detail adjustments */
+    .col-md-6 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    
+    /* Cart table mobile optimization */
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .table th,
+    .table td {
+      white-space: nowrap;
+    }
+    
+    /* Product detail table - allow text wrapping on mobile */
+    .card-body .table-responsive .table th,
+    .card-body .table-responsive .table td {
+      white-space: normal;
+      word-wrap: break-word;
+      word-break: break-word;
+    }
+    .card-body .table-responsive .table th {
+      min-width: 80px;
+    }
+    
+    /* Mypage cards */
+    .col-md-6.mb-4 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    
+    /* Modal adjustments */
+    .modal-dialog {
+      margin: 0.5rem;
+    }
+    .modal-body {
+      padding: 1rem;
+    }
+    
+    /* Favorite star button size */
+    .favorite-btn {
+      font-size: 1.2rem !important;
+      padding: 4px 8px !important;
+    }
+  }
+  
+  /* Extra small devices (phones in portrait, less than 576px) */
+  @media (max-width: 576px) {
+    /* Make cart buttons smaller */
+    .btn-sm {
+      padding: 0.2rem 0.4rem;
+      font-size: 0.75rem;
+    }
+    
+    /* Product card image adjustments */
+    .card-img-top {
+      max-height: 250px;
+      object-fit: cover;
+    }
+    
+    /* Pager summary text size */
+    .text-muted {
+      font-size: 0.8rem;
+    }
+    
+    /* Ensure favorite list items stack properly */
+    .favorite-item .col-md-3,
+    .favorite-item .col-md-9 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    
+    /* Form inputs on mobile */
+    .form-control {
+      font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    /* Image adjustments */
+    .img-fluid {
+      width: 100%;
+      height: auto;
+    }
+    
+    /* Pagination on mobile */
+    .pagination {
+      font-size: 0.85rem;
+    }
+    .page-link {
+      padding: 0.4rem 0.6rem;
+    }
+  }
   </style>
   <script>
   // ensure body has top padding equal to fixed navbar height to avoid overlap

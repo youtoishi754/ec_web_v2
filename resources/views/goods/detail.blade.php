@@ -40,16 +40,15 @@
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h2 class="mb-0">{{ $goods_data->goods_name }}</h2>
         @if(auth()->check())
-          <button class="btn btn-outline-warning favorite-btn" data-goods-id="{{ $goods_data->id }}" 
+          <button class="btn btn-sm btn-{{ auth()->user()->favoriteGoods->contains($goods_data->id) ? 'warning' : 'outline-warning' }} favorite-btn" 
+                  style="padding: 2px 6px;"
+                  data-goods-id="{{ $goods_data->id }}" 
                   data-favorited="{{ auth()->user()->favoriteGoods->contains($goods_data->id) ? 'true' : 'false' }}">
-            <i class="fas fa-star"></i>
-            <span class="favorite-text">
-              {{ auth()->user()->favoriteGoods->contains($goods_data->id) ? 'お気に入り解除' : 'お気に入り' }}
-            </span>
+            <i class="{{ auth()->user()->favoriteGoods->contains($goods_data->id) ? 'fas' : 'far' }} fa-star"></i>
           </button>
         @else
-          <a href="{{ route('login') }}" class="btn btn-outline-warning">
-            <i class="far fa-star"></i> お気に入り
+          <a href="{{ route('login') }}" class="btn btn-sm btn-outline-warning" style="padding: 2px 6px;">
+            <i class="far fa-star"></i>
           </a>
         @endif
       </div>
@@ -58,32 +57,34 @@
         <div class="card-body">
           <h4 class="text-danger mb-3">¥{{ number_format($goods_data->goods_price) }}</h4>
           
-          <table class="table table-sm">
-            <tr>
-              <th style="width: 30%;">商品番号</th>
-              <td>{{ $goods_data->goods_number }}</td>
-            </tr>
-            <tr>
-              <th>在庫数</th>
-              <td>
-                @if($goods_data->goods_stock > 0)
-                  <span class="text-success">{{ $goods_data->goods_stock }}個</span>
-                @else
-                  <span class="text-danger">在庫切れ</span>
-                @endif
-              </td>
-            </tr>
-            @if($goods_data->intro_txt)
-            <tr>
-              <th>商品説明</th>
-              <td>{!! $goods_data->intro_txt !!}</td>
-            </tr>
-            @endif
-            <tr>
-              <th>状態</th>
-              <td>@if( $goods_data->disp_flg == 0) 表示 @else 非表示 @endif</td>
-            </tr>
-          </table>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <tr>
+                <th style="width: 30%;">商品番号</th>
+                <td>{{ $goods_data->goods_number }}</td>
+              </tr>
+              <tr>
+                <th>在庫数</th>
+                <td>
+                  @if($goods_data->goods_stock > 0)
+                    <span class="text-success">{{ $goods_data->goods_stock }}個</span>
+                  @else
+                    <span class="text-danger">在庫切れ</span>
+                  @endif
+                </td>
+              </tr>
+              @if($goods_data->intro_txt)
+              <tr>
+                <th>商品説明</th>
+                <td>{!! $goods_data->intro_txt !!}</td>
+              </tr>
+              @endif
+              <tr>
+                <th>状態</th>
+                <td>@if( $goods_data->disp_flg == 0) 表示 @else 非表示 @endif</td>
+              </tr>
+            </table>
+          </div>
 
           {{-- カート追加フォーム --}}
           @if($goods_data->goods_stock > 0)
@@ -122,7 +123,10 @@
 <script>
 // お気に入りボタンの処理
 $(document).ready(function() {
-  $('.favorite-btn').on('click', function() {
+  $('.favorite-btn').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
     var btn = $(this);
     var goodsId = btn.data('goods-id');
     var isFavorited = btn.data('favorited') === 'true';
@@ -140,31 +144,17 @@ $(document).ready(function() {
           // ボタンの状態を切り替え
           if (isFavorited) {
             btn.data('favorited', 'false');
+            btn.removeClass('btn-warning').addClass('btn-outline-warning');
             btn.find('i').removeClass('fas').addClass('far');
-            btn.find('.favorite-text').text('お気に入り');
           } else {
             btn.data('favorited', 'true');
+            btn.removeClass('btn-outline-warning').addClass('btn-warning');
             btn.find('i').removeClass('far').addClass('fas');
-            btn.find('.favorite-text').text('お気に入り解除');
           }
-          
-          // 成功メッセージを表示
-          var alertHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
-                          response.message +
-                          '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
-                          '</div>';
-          $('.breadcrumb').after(alertHtml);
-          
-          // 3秒後に自動で消す
-          setTimeout(function() {
-            $('.alert').fadeOut();
-          }, 3000);
-        } else {
-          alert(response.message);
         }
       },
       error: function() {
-        alert('エラーが発生しました。');
+        // エラー時も何も表示しない
       }
     });
   });
