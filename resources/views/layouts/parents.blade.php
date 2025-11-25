@@ -685,8 +685,8 @@
           <a href="{{ route('about') }}" class="mx-2">ABOUT</a>
           <a href="{{ route('contact') }}" class="mx-2">CONTACT</a>
           <a href="#" class="mx-2">PRIVACY POLICY</a>
-          <a href="#" class="mx-2">TERMS OF SERVICE</a>
-          <a href="#" class="mx-2">FAQ</a>
+          <a href="{{ route('terms') }}" class="mx-2">TERMS OF SERVICE</a>
+          <a href="{{ route('faq') }}" class="mx-2">FAQ</a>
         </div>
       </div>
     </div>

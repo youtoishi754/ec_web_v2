@@ -34,6 +34,8 @@ Route::get('/about', 'AboutController@index')->name('about');
 Route::get('/contact', 'ContactController@index')->name('contact');
 Route::post('/contact', 'ContactController@submit')->name('contact_submit');
 Route::get('/contact/thanks', 'ContactController@thanks')->name('contact_thanks');
+Route::get('/terms', 'TermsController@index')->name('terms');
+Route::get('/faq', 'FaqController@index')->name('faq');
 
 // Route::get('/goodslist/{id}', 'GoodslistShowController')->name('goodslist_show'); //商品詳細
 // メール仮登録（最初にメールアドレスだけ登録する）
