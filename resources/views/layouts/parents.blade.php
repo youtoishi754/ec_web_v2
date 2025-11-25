@@ -604,10 +604,10 @@
             <a class="nav-link" href="{{route('goods_list')}}">SHOP</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">ABOUT</a>
+            <a class="nav-link" href="{{ route('about') }}">ABOUT</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">CONTACT</a>
+            <a class="nav-link" href="{{ route('contact') }}">CONTACT</a>
           </li>
           @if(auth()->check())
             <li class="nav-item">
@@ -682,10 +682,11 @@
           <p class="copyright mb-0">© 2024 SHOPPING SITE</p>
         </div>
         <div class="col-md-6 text-center text-md-right">
+          <a href="{{ route('about') }}" class="mx-2">ABOUT</a>
+          <a href="{{ route('contact') }}" class="mx-2">CONTACT</a>
           <a href="#" class="mx-2">PRIVACY POLICY</a>
           <a href="#" class="mx-2">TERMS OF SERVICE</a>
           <a href="#" class="mx-2">FAQ</a>
-          <a href="#" class="mx-2">CONTACT</a>
         </div>
       </div>
     </div>

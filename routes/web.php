@@ -24,10 +24,17 @@ Route::get('/', 'GoodsController')->name('index');                         //ト
 // Route::get('/goods/delete', 'Goods\GoodsDeleteController')->name('goods_delete');        //削除確認
 // Route::post('/goods/delete/do', 'Goods\Delete\GoodsDeleteDoController')->name('goods_delete_do');   //削除
 // Route::get('/', 'ContactController')->name('contact');                         //問い合わせ
-// Route::post('/contact', 'ContactSubmitController')->name('contact_submit'); //問い合わせ送信
+// Route::get('/contact', 'ContactSubmitController')->name('contact_submit'); //問い合わせ送信
 // Route::get('/contact/thanks', 'ContactThanksController')->name('contact_thanks'); //問い合わせ完了
  Route::get('/goods/list', 'Goods\GoodsListController')->name('goods_list'); //商品一覧
 Route::get('/goods/detail', 'Goods\GoodsDetailController')->name('goods_detail'); //商品詳細
+
+// About / Contact
+Route::get('/about', 'AboutController@index')->name('about');
+Route::get('/contact', 'ContactController@index')->name('contact');
+Route::post('/contact', 'ContactController@submit')->name('contact_submit');
+Route::get('/contact/thanks', 'ContactController@thanks')->name('contact_thanks');
+
 // Route::get('/goodslist/{id}', 'GoodslistShowController')->name('goodslist_show'); //商品詳細
 // メール仮登録（最初にメールアドレスだけ登録する）
 Route::get('/pre-register', 'Auth\PreRegistrationController@showForm')->name('pre_register');

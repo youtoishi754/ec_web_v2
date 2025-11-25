@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Http\Request;
+
+class AboutController extends BaseController
+{
+    /**
+     * ABOUTページを表示
+     */
+    public function index()
+    {
+        return view('about.index');
+    }
+}
