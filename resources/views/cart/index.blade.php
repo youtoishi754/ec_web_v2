@@ -33,7 +33,8 @@
     </div>
     <a href="{{ route('goods_list') }}" class="btn btn-primary">商品一覧へ</a>
   @else
-    <div class="table-responsive mt-4">
+    {{-- PC表示用テーブル --}}
+    <div class="table-responsive mt-4 d-none d-md-block">
       <table class="table table-bordered">
         <thead class="thead-light">
           <tr>
@@ -84,6 +85,57 @@
           </tr>
         </tfoot>
       </table>
+    </div>
+
+    {{-- モバイル表示用カード --}}
+    <div class="d-md-none mt-4">
+      @foreach($cart as $item)
+      <div class="card mb-3 cart-item-card" data-goods-id="{{ $item['goods_id'] }}" data-price="{{ $item['goods_price'] }}">
+        <div class="row no-gutters">
+          <div class="col-4">
+            <img src="{{ asset('public/product-image/dummy.png') }}" alt="{{ $item['goods_name'] }}" class="img-fluid cart-mobile-img" style="width: 100%; height: 150px; object-fit: cover; border-radius: 0.25rem 0 0 0.25rem;">
+          </div>
+          <div class="col-8">
+            <div class="card-body p-2">
+              <h6 class="card-title mb-1">{{ $item['goods_name'] }}</h6>
+              <p class="card-text small text-muted mb-1">商品番号: {{ $item['goods_number'] }}</p>
+              <p class="card-text mb-2">
+                <span class="text-danger font-weight-bold">¥{{ number_format($item['goods_price']) }}</span>
+              </p>
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center">
+                  <button type="button" class="btn btn-sm btn-outline-secondary btn-decrease" data-goods-id="{{ $item['goods_id'] }}" {{ $item['quantity'] <= 1 ? 'disabled' : '' }}>
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <span class="mx-2 quantity-display" data-goods-id="{{ $item['goods_id'] }}">{{ $item['quantity'] }}個</span>
+                  <button type="button" class="btn btn-sm btn-outline-secondary btn-increase" data-goods-id="{{ $item['goods_id'] }}">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+                <div class="subtotal font-weight-bold">¥{{ number_format($item['goods_price'] * $item['quantity']) }}</div>
+              </div>
+              <form action="{{ route('cart_remove') }}" method="POST">
+                @csrf
+                <input type="hidden" name="goods_id" value="{{ $item['goods_id'] }}">
+                <button type="submit" class="btn btn-sm btn-danger btn-block">
+                  <i class="fas fa-trash"></i> 削除
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      @endforeach
+      
+      {{-- モバイル用合計表示 --}}
+      <div class="card bg-light mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0">合計金額</h5>
+            <h4 class="mb-0 text-danger" id="total-price-mobile">¥{{ number_format($total) }}</h4>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="row mt-4">
@@ -169,13 +221,28 @@ document.addEventListener('DOMContentLoaded', function() {
   // 合計金額を再計算
   function updateTotal() {
     let total = 0;
-    document.querySelectorAll('tbody tr').forEach(function(row) {
+    
+    // PCとモバイル両方のカート要素を取得
+    const cartRows = document.querySelectorAll('tbody tr, .cart-item-card');
+    
+    cartRows.forEach(function(row) {
       const price = parseInt(row.getAttribute('data-price'));
       const quantityText = row.querySelector('.quantity-display').textContent;
       const quantity = parseInt(quantityText);
       total += price * quantity;
     });
-    document.getElementById('total-price').textContent = '¥' + total.toLocaleString();
+    
+    // PC用の合計を更新
+    const totalPriceElement = document.getElementById('total-price');
+    if (totalPriceElement) {
+      totalPriceElement.textContent = '¥' + total.toLocaleString();
+    }
+    
+    // モバイル用の合計を更新
+    const totalPriceMobileElement = document.getElementById('total-price-mobile');
+    if (totalPriceMobileElement) {
+      totalPriceMobileElement.textContent = '¥' + total.toLocaleString();
+    }
   }
   
   // ヘッダーのカートバッジを更新

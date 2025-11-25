@@ -491,6 +491,22 @@
       font-size: 1.2rem !important;
       padding: 4px 8px !important;
     }
+    
+    /* Cart mobile card styles */
+    .cart-item-card {
+      border: 1px solid #dee2e6;
+    }
+    .cart-item-card .card-body {
+      padding: 0.75rem;
+    }
+    .cart-item-card .card-title {
+      font-size: 0.95rem;
+      line-height: 1.3;
+    }
+    .cart-mobile-img {
+      min-height: 120px;
+      max-height: 180px;
+    }
   }
   
   /* Extra small devices (phones in portrait, less than 576px) */
@@ -499,6 +515,13 @@
     .btn-sm {
       padding: 0.2rem 0.4rem;
       font-size: 0.75rem;
+    }
+    
+    /* Cart mobile image smaller on tiny screens */
+    .cart-mobile-img {
+      height: 100px !important;
+      min-height: 100px;
+      max-height: 100px;
     }
     
     /* Product card image adjustments */
