@@ -135,10 +135,13 @@
           <h5 class="mb-0"><i class="fas fa-heart"></i> お気に入り</h5>
         </div>
         <div class="card-body">
-          <p class="text-muted">お気に入り機能は未実装です。</p>
-          <button class="btn btn-outline-warning btn-block" disabled>
-            <i class="fas fa-star"></i> お気に入りを見る（未実装）
-          </button>
+          @php
+            $favoritesCount = auth()->user()->favorites()->count();
+          @endphp
+          <p class="mb-2">お気に入り登録数: <strong>{{ $favoritesCount }}件</strong></p>
+          <a href="{{ route('favorites') }}" class="btn btn-warning btn-block">
+            <i class="fas fa-star"></i> お気に入りを見る
+          </a>
         </div>
       </div>
     </div>

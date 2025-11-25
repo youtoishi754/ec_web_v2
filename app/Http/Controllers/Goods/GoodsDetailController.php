@@ -8,14 +8,19 @@ use Illuminate\Http\Request;
 use App\Http\Requests\Goods\GoodsDetailRequest;
 use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\DB;
 
 class GoodsDetailController extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    public function __invoke(GoodsDetailRequest $request)
+    public function __invoke(Request $request)
     {
-        //商品情報を取得
+        // un_id で商品情報を取得
+        if (!$request->has('un_id')) {
+            return redirect('/');
+        }
+
         $goods_data = getGoods($request->un_id);
 
         if(!$goods_data)

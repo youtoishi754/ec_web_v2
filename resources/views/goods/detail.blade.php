@@ -37,7 +37,22 @@
 
     <div class="col-md-6">
       {{-- 商品情報 --}}
-      <h2 class="mb-3">{{ $goods_data->goods_name }}</h2>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">{{ $goods_data->goods_name }}</h2>
+        @if(auth()->check())
+          <button class="btn btn-outline-warning favorite-btn" data-goods-id="{{ $goods_data->id }}" 
+                  data-favorited="{{ auth()->user()->favoriteGoods->contains($goods_data->id) ? 'true' : 'false' }}">
+            <i class="fas fa-star"></i>
+            <span class="favorite-text">
+              {{ auth()->user()->favoriteGoods->contains($goods_data->id) ? 'お気に入り解除' : 'お気に入り' }}
+            </span>
+          </button>
+        @else
+          <a href="{{ route('login') }}" class="btn btn-outline-warning">
+            <i class="far fa-star"></i> お気に入り
+          </a>
+        @endif
+      </div>
       
       <div class="card mb-3">
         <div class="card-body">
@@ -103,4 +118,56 @@
     </div>
   </div>
 </div>
+
+<script>
+// お気に入りボタンの処理
+$(document).ready(function() {
+  $('.favorite-btn').on('click', function() {
+    var btn = $(this);
+    var goodsId = btn.data('goods-id');
+    var isFavorited = btn.data('favorited') === 'true';
+    var url = isFavorited ? '{{ route("favorite_remove") }}' : '{{ route("favorite_add") }}';
+    
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: {
+        _token: '{{ csrf_token() }}',
+        goods_id: goodsId
+      },
+      success: function(response) {
+        if (response.success) {
+          // ボタンの状態を切り替え
+          if (isFavorited) {
+            btn.data('favorited', 'false');
+            btn.find('i').removeClass('fas').addClass('far');
+            btn.find('.favorite-text').text('お気に入り');
+          } else {
+            btn.data('favorited', 'true');
+            btn.find('i').removeClass('far').addClass('fas');
+            btn.find('.favorite-text').text('お気に入り解除');
+          }
+          
+          // 成功メッセージを表示
+          var alertHtml = '<div class="alert alert-success alert-dismissible fade show" role="alert">' +
+                          response.message +
+                          '<button type="button" class="close" data-dismiss="alert">&times;</button>' +
+                          '</div>';
+          $('.breadcrumb').after(alertHtml);
+          
+          // 3秒後に自動で消す
+          setTimeout(function() {
+            $('.alert').fadeOut();
+          }, 3000);
+        } else {
+          alert(response.message);
+        }
+      },
+      error: function() {
+        alert('エラーが発生しました。');
+      }
+    });
+  });
+});
+</script>
 @endsection

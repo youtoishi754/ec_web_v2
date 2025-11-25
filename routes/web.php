@@ -62,4 +62,9 @@ Route::middleware('auth')->group(function () {
     
     // 退会
     Route::post('/mypage/delete', 'MypageController@delete')->name('mypage_delete');
+    
+    // お気に入り機能
+    Route::get('/favorites', 'FavoriteController@index')->name('favorites');
+    Route::post('/favorites/add', 'FavoriteController@add')->name('favorite_add');
+    Route::post('/favorites/remove', 'FavoriteController@remove')->name('favorite_remove');
 });

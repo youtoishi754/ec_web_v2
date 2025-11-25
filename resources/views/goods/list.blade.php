@@ -52,8 +52,23 @@
           <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="text-decoration-none">
             <img class="card-img-top" src="{{ asset('public/product-image/dummy.png') }}" alt="商品画像">
           </a>
-          <div class="card-body d-flex flex-column">
-            <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="text-decoration-none text-dark">
+          <div class="card-body d-flex flex-column position-relative">
+            {{-- お気に入りボタン --}}
+            @if(auth()->check())
+              <button class="btn btn-sm btn-outline-warning favorite-btn-list position-absolute" 
+                      style="top: 5px; right: 5px; z-index: 10; padding: 2px 6px;"
+                      data-goods-id="{{ $goods->id }}" 
+                      data-favorited="{{ auth()->user()->favoriteGoods->contains($goods->id) ? 'true' : 'false' }}">
+                <i class="{{ auth()->user()->favoriteGoods->contains($goods->id) ? 'fas' : 'far' }} fa-star"></i>
+              </button>
+            @else
+              <a href="{{ route('login') }}" class="btn btn-sm btn-outline-warning position-absolute" 
+                 style="top: 5px; right: 5px; z-index: 10; padding: 2px 6px;">
+                <i class="far fa-star"></i>
+              </a>
+            @endif
+            
+            <a href="{{ route('goods_detail', ['un_id' => $goods->un_id]) }}" class="text-decoration-none text-dark" style="padding-right: 35px;">
               <h5 class="card-title">{{ $goods->goods_name }}</h5>
             </a>
             <p class="card-text mb-1">価格: ¥{{ number_format($goods->goods_price) }}</p>
@@ -152,6 +167,45 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentQuantity <= 1) {
           this.disabled = true;
         }
+      }
+    });
+  });
+});
+
+// お気に入りボタンの処理（商品一覧ページ）
+$(document).ready(function() {
+  $('.favorite-btn-list').on('click', function(e) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    var btn = $(this);
+    var goodsId = btn.data('goods-id');
+    var isFavorited = btn.data('favorited') === 'true';
+    var url = isFavorited ? '{{ route("favorite_remove") }}' : '{{ route("favorite_add") }}';
+    
+    $.ajax({
+      url: url,
+      type: 'POST',
+      data: {
+        _token: '{{ csrf_token() }}',
+        goods_id: goodsId
+      },
+      success: function(response) {
+        if (response.success) {
+          // ボタンの状態を切り替え
+          if (isFavorited) {
+            btn.data('favorited', 'false');
+            btn.find('i').removeClass('fas').addClass('far');
+          } else {
+            btn.data('favorited', 'true');
+            btn.find('i').removeClass('far').addClass('fas');
+          }
+        } else {
+          alert(response.message);
+        }
+      },
+      error: function() {
+        alert('エラーが発生しました。');
       }
     });
   });

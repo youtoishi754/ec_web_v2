@@ -55,4 +55,20 @@ class User extends Authenticatable
     {
         return $this->delete_flg == 1;
     }
+
+    /**
+     * ユーザーのお気に入り
+     */
+    public function favorites()
+    {
+        return $this->hasMany('App\Favorite');
+    }
+
+    /**
+     * お気に入り登録している商品
+     */
+    public function favoriteGoods()
+    {
+        return $this->belongsToMany('App\TGoods', 't_favorites', 'user_id', 'goods_id')->withTimestamps();
+    }
 }
