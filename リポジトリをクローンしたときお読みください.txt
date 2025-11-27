@@ -1,0 +1,5 @@
+php.iniのextention=intlを有効にしてください。
+composerをupdateしてください。
+composerをinstallしてください。
+.envファイルを作ってapp_keyをgenerateしてください。
+.envファイルのapp_nameをec_webにしてください。
