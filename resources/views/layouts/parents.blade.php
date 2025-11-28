@@ -632,8 +632,8 @@
               @php
                 $cart = session()->get('cart', []);
                 $totalItems = 0;
-                foreach($cart as $item) {
-                  $totalItems += $item['quantity'];
+                foreach($cart as $goodsId => $quantity) {
+                  $totalItems += $quantity;
                 }
               @endphp
               @if($totalItems > 0)

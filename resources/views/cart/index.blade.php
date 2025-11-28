@@ -151,9 +151,15 @@
     </div>
 
     <div class="mt-3">
-      <button class="btn btn-success btn-lg btn-block" disabled>
-        <i class="fas fa-credit-card"></i> レジに進む（未実装）
-      </button>
+      @auth
+        <a href="{{ route('orders.confirm') }}" class="btn btn-success btn-lg btn-block">
+          <i class="fas fa-credit-card"></i> レジに進む
+        </a>
+      @else
+        <a href="{{ route('login') }}" class="btn btn-primary btn-lg btn-block">
+          <i class="fas fa-sign-in-alt"></i> ログインして購入
+        </a>
+      @endauth
     </div>
   @endif
 </div>

@@ -118,10 +118,13 @@
           <h5 class="mb-0"><i class="fas fa-shopping-bag"></i> 注文履歴</h5>
         </div>
         <div class="card-body">
-          <p class="text-muted">注文履歴機能は未実装です。</p>
-          <button class="btn btn-outline-success btn-block" disabled>
-            <i class="fas fa-list"></i> 注文履歴を見る（未実装）
-          </button>
+          @php
+            $ordersCount = auth()->user()->orders()->count();
+          @endphp
+          <p class="mb-2">注文件数: <strong>{{ $ordersCount }}件</strong></p>
+          <a href="{{ route('orders.index') }}" class="btn btn-success btn-block">
+            <i class="fas fa-list"></i> 注文履歴を見る
+          </a>
         </div>
       </div>
     </div>
@@ -153,10 +156,13 @@
           <h5 class="mb-0"><i class="fas fa-map-marker-alt"></i> 配送先情報</h5>
         </div>
         <div class="card-body">
-          <p class="text-muted">配送先管理機能は未実装です。</p>
-          <button class="btn btn-outline-info btn-block" disabled>
-            <i class="fas fa-address-book"></i> 配送先を管理（未実装）
-          </button>
+          @php
+            $addressesCount = auth()->user()->shippingAddresses()->count();
+          @endphp
+          <p class="mb-2">登録配送先: <strong>{{ $addressesCount }}件</strong></p>
+          <a href="{{ route('orders.addresses') }}" class="btn btn-info btn-block">
+            <i class="fas fa-address-book"></i> 配送先を管理
+          </a>
         </div>
       </div>
     </div>

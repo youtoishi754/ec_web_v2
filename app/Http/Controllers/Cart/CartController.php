@@ -51,23 +51,17 @@ class CartController extends BaseController
 
         // すでにカートに入っている商品の場合は数量を追加
         if (isset($cart[$goods->id])) {
-            $newQuantity = $cart[$goods->id]['quantity'] + $request->quantity;
+            $newQuantity = $cart[$goods->id] + $request->quantity;
             
             // 在庫チェック
             if ($goods->goods_stock < $newQuantity) {
                 return redirect()->back()->withErrors(['error' => '在庫が不足しています。']);
             }
             
-            $cart[$goods->id]['quantity'] = $newQuantity;
+            $cart[$goods->id] = $newQuantity;
         } else {
             // 新しい商品をカートに追加
-            $cart[$goods->id] = [
-                'goods_id' => $goods->id,
-                'goods_name' => $goods->goods_name,
-                'goods_price' => $goods->goods_price,
-                'quantity' => $request->quantity,
-                'goods_number' => $goods->goods_number,
-            ];
+            $cart[$goods->id] = $request->quantity;
         }
 
         session()->put('cart', $cart);
@@ -81,15 +75,30 @@ class CartController extends BaseController
     public function index()
     {
         $cart = session()->get('cart', []);
+        $cartItems = [];
         $total = 0;
 
-        foreach ($cart as $item) {
-            $total += $item['goods_price'] * $item['quantity'];
+        foreach ($cart as $goodsId => $quantity) {
+            $goods = DB::table('t_goods')
+                ->where('id', $goodsId)
+                ->where('delete_flg', 0)
+                ->first();
             
+            if ($goods) {
+                $cartItems[] = [
+                    'goods_id' => $goods->id,
+                    'goods_name' => $goods->goods_name,
+                    'goods_price' => $goods->goods_price,
+                    'quantity' => $quantity,
+                    'goods_number' => $goods->goods_number,
+                    'image_path' => $goods->image_path,
+                ];
+                $total += $goods->goods_price * $quantity;
+            }
         }
 
         return view('cart.index', [
-            'cart' => $cart,
+            'cart' => $cartItems,
             'total' => $total
         ]);
     }

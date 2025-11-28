@@ -71,4 +71,20 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\TGoods', 't_favorites', 'user_id', 'goods_id')->withTimestamps();
     }
+
+    /**
+     * ユーザーの注文
+     */
+    public function orders()
+    {
+        return $this->hasMany('App\Order');
+    }
+
+    /**
+     * ユーザーの配送先
+     */
+    public function shippingAddresses()
+    {
+        return $this->hasMany('App\ShippingAddress');
+    }
 }

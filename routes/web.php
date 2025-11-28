@@ -76,4 +76,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/favorites', 'FavoriteController@index')->name('favorites');
     Route::post('/favorites/add', 'FavoriteController@add')->name('favorite_add');
     Route::post('/favorites/remove', 'FavoriteController@remove')->name('favorite_remove');
+    
+    // 注文機能
+    Route::get('/orders', 'OrderController@index')->name('orders.index');
+    Route::get('/orders/{id}', 'OrderController@show')->name('orders.show');
+    Route::get('/order/confirm', 'OrderController@confirm')->name('orders.confirm');
+    Route::post('/order/store', 'OrderController@store')->name('orders.store');
+    Route::get('/order/complete/{id}', 'OrderController@complete')->name('orders.complete');
+    
+    // 配送先管理
+    Route::get('/shipping-addresses', 'OrderController@addresses')->name('orders.addresses');
+    Route::post('/shipping-addresses/add', 'OrderController@addAddress')->name('orders.addresses.add');
+    Route::delete('/shipping-addresses/{id}', 'OrderController@deleteAddress')->name('orders.addresses.delete');
+    Route::post('/shipping-addresses/{id}/default', 'OrderController@setDefaultAddress')->name('orders.addresses.default');
 });
