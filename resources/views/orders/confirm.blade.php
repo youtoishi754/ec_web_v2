@@ -116,25 +116,47 @@
                     <div class="card-body">
                         @foreach($paymentMethods as $method)
                         <div class="form-check mb-2">
-                            <input class="form-check-input" type="radio" name="payment_method_id" 
+                            <input class="form-check-input payment-method-radio" type="radio" name="payment_method_id" 
                                 id="payment{{ $method->id }}" value="{{ $method->id }}"
+                                data-method-type="{{ $method->id }}"
                                 {{ $loop->first ? 'checked' : '' }} required>
                             <label class="form-check-label" for="payment{{ $method->id }}">
-                                {{ $method->name }}
+                                <strong>{{ $method->name }}</strong>
                                 @if($method->id == 1)
-                                    <small class="text-muted">(即時決済)</small>
+                                    <small class="text-muted">(Stripeクレジットカード決済)</small>
                                 @elseif($method->id == 2)
                                     <small class="text-muted">(商品受取時に現金払い)</small>
                                 @elseif($method->id == 3)
-                                    <small class="text-muted">(後払い)</small>
+                                    <small class="text-muted">(後払い - 入金確認後発送)</small>
                                 @endif
                             </label>
                         </div>
                         @endforeach
                         
-                        <div class="alert alert-info mt-3">
+                        <!-- Stripeカード入力フォーム -->
+                        <div id="stripe-card-section" class="mt-4" style="display: none;">
+                            <div class="alert alert-info">
+                                <i class="fas fa-credit-card"></i> カード情報を入力してください
+                            </div>
+                            <div class="form-group">
+                                <label>カード番号・有効期限・CVC</label>
+                                <div id="card-element" class="form-control" style="height: 40px; padding: 10px;">
+                                    <!-- Stripe Elementがここに挿入されます -->
+                                </div>
+                                <div id="card-errors" class="text-danger mt-2" role="alert"></div>
+                            </div>
+                            <div class="alert alert-warning">
+                                <strong>テストカード番号:</strong><br>
+                                成功: 4242 4242 4242 4242<br>
+                                失敗: 4000 0000 0000 0002<br>
+                                有効期限: 将来の日付（例: 12/25）<br>
+                                CVC: 任意の3桁（例: 123）
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info mt-3" id="payment-info">
                             <i class="fas fa-info-circle"></i> 
-                            <strong>注意:</strong> 現在は仮の支払い処理となっています。実際の決済は行われません。
+                            <strong>入金確認後に発送いたします。</strong>
                         </div>
                     </div>
                 </div>
@@ -146,7 +168,7 @@
                         </a>
                     </div>
                     <div class="col-md-6">
-                        <button type="submit" class="btn btn-primary btn-block" 
+                        <button type="submit" class="btn btn-primary btn-block" id="submit-button"
                             {{ $shippingAddresses->isEmpty() ? 'disabled' : '' }}>
                             <i class="fas fa-check"></i> 注文を確定する
                         </button>
@@ -157,11 +179,126 @@
     </div>
 </div>
 
+<!-- Stripe.js -->
+<script src="https://js.stripe.com/v3/"></script>
+
 <script>
-document.getElementById('orderForm').addEventListener('submit', function(e) {
-    var btn = this.querySelector('button[type="submit"]');
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 処理中...';
+// Stripe初期化
+const stripe = Stripe('{{ env('STRIPE_TEST_PUBLIC_KEY') }}');
+let elements;
+let cardElement;
+
+// 支払方法変更時の処理
+document.querySelectorAll('.payment-method-radio').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const paymentMethodId = this.value;
+        const stripeSection = document.getElementById('stripe-card-section');
+        const paymentInfo = document.getElementById('payment-info');
+        
+        if (paymentMethodId === '1') { // クレジットカード
+            stripeSection.style.display = 'block';
+            paymentInfo.innerHTML = '<i class="fas fa-info-circle"></i> <strong>Stripe決済完了後、自動的に入金確認されます。</strong>';
+            
+            // Stripe Elementsを初期化（まだの場合）
+            if (!elements) {
+                initializeStripeElements();
+            }
+        } else {
+            stripeSection.style.display = 'none';
+            if (paymentMethodId === '2') { // 代引き
+                paymentInfo.innerHTML = '<i class="fas fa-info-circle"></i> <strong>商品受取時に配達員にお支払いください。入金確認後に発送いたします。</strong>';
+            } else if (paymentMethodId === '3') { // 銀行振込
+                paymentInfo.innerHTML = '<i class="fas fa-info-circle"></i> <strong>振込確認後に発送いたします。振込先は注文完了画面に表示されます。</strong>';
+            }
+        }
+    });
+});
+
+// Stripe Elements初期化
+function initializeStripeElements() {
+    elements = stripe.elements();
+    cardElement = elements.create('card', {
+        style: {
+            base: {
+                fontSize: '16px',
+                color: '#32325d',
+                fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                '::placeholder': {
+                    color: '#aab7c4'
+                }
+            },
+            invalid: {
+                color: '#fa755a',
+                iconColor: '#fa755a'
+            }
+        }
+    });
+    cardElement.mount('#card-element');
+    
+    // エラー表示
+    cardElement.on('change', function(event) {
+        const displayError = document.getElementById('card-errors');
+        if (event.error) {
+            displayError.textContent = event.error.message;
+        } else {
+            displayError.textContent = '';
+        }
+    });
+}
+
+// ページ読み込み時に初期状態をチェック
+document.addEventListener('DOMContentLoaded', function() {
+    const checkedRadio = document.querySelector('.payment-method-radio:checked');
+    if (checkedRadio && checkedRadio.value === '1') {
+        document.getElementById('stripe-card-section').style.display = 'block';
+        initializeStripeElements();
+    }
+});
+
+// フォーム送信処理
+document.getElementById('orderForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const submitButton = document.getElementById('submit-button');
+    const originalText = submitButton.innerHTML;
+    submitButton.disabled = true;
+    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 処理中...';
+    
+    const paymentMethodId = document.querySelector('.payment-method-radio:checked').value;
+    
+    try {
+        // クレジットカード決済の場合
+        if (paymentMethodId === '1') {
+            // PaymentMethodを作成
+            const {error: methodError, paymentMethod} = await stripe.createPaymentMethod({
+                type: 'card',
+                card: cardElement,
+            });
+            
+            if (methodError) {
+                document.getElementById('card-errors').textContent = methodError.message;
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalText;
+                return;
+            }
+            
+            // PaymentMethod IDをフォームに追加
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'stripe_payment_method_id';
+            input.value = paymentMethod.id;
+            this.appendChild(input);
+        }
+        
+        // フォームを送信
+        this.submit();
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('エラーが発生しました: ' + error.message);
+        submitButton.disabled = false;
+        submitButton.innerHTML = originalText;
+    }
 });
 </script>
 @endsection

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Validation\ValidatesRequests;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use App\Order;
 use App\OrderDetail;
 use App\OrderStatus;
@@ -16,6 +17,7 @@ use App\PaymentMethod;
 use App\ShippingAddress;
 use App\Prefecture;
 use App\TGoods;
+use App\Mail\OrderCompleteMail;
 
 class OrderController extends BaseController
 {
@@ -109,13 +111,14 @@ class OrderController extends BaseController
     }
 
     /**
-     * 注文処理（仮の支払い処理を含む）
+     * 注文処理（Stripe決済統合）
      */
     public function store(Request $request)
     {
         $request->validate([
             'shipping_address_id' => 'required|exists:t_shipping_addresses,id',
             'payment_method_id' => 'required|exists:m_payment_methods,id',
+            'stripe_payment_method_id' => 'nullable|string', // Stripeの場合のみ
         ]);
         
         $user = Auth::user();
@@ -158,15 +161,17 @@ class OrderController extends BaseController
             
             // 送料計算
             $shippingFee = $subtotal >= 10000 ? 0 : 500;
+            $totalAmount = $subtotal + $shippingFee;
             
-            // 注文を作成
+            // 注文を作成（すべて決済未完了ステータスで開始）
             $order = Order::create([
                 'user_id' => $user->id,
                 'order_number' => Order::generateOrderNumber(),
                 'total_price' => $subtotal,
                 'shipping_fee' => $shippingFee,
-                'status_id' => 1, // 注文確定
+                'status_id' => 9, // 決済未完了
                 'payment_id' => $request->payment_method_id,
+                'payment_status' => Order::PAYMENT_STATUS_PENDING, // 未決済
                 'shipping_name' => $shippingAddress->name,
                 'shipping_address' => $shippingAddress->full_address,
                 'ordered_at' => now(),
@@ -190,21 +195,75 @@ class OrderController extends BaseController
                 $goods->save();
             }
             
-            // 仮の支払い処理
-            $paymentResult = $this->processFakePayment($order, $request->payment_method_id);
-            
-            if ($paymentResult['success']) {
-                // 支払い成功 → ステータスを更新
-                if ($request->payment_method_id == 1) { // クレジットカード
-                    $order->status_id = 2; // 入金確認済
-                    $order->save();
-                } elseif ($request->payment_method_id == 3) { // 銀行振込
-                    // 振込の場合は入金待ち（ステータス1のまま）
+            // クレジットカード決済の場合、Stripe PaymentIntentを作成
+            if ($request->payment_method_id == 1 && $request->stripe_payment_method_id) {
+                \Stripe\Stripe::setApiKey(env('STRIPE_TEST_SECRET_KEY'));
+                
+                try {
+                    $paymentIntent = \Stripe\PaymentIntent::create([
+                        'amount' => intval($totalAmount), // JPYは円単位
+                        'currency' => 'jpy',
+                        'payment_method' => $request->stripe_payment_method_id,
+                        'confirmation_method' => 'automatic',
+                        'confirm' => true,
+                        'return_url' => route('orders.complete', ['id' => $order->id]),
+                        'metadata' => [
+                            'order_id' => $order->id,
+                            'order_number' => $order->order_number,
+                            'user_id' => $user->id,
+                            'user_email' => $user->email,
+                        ],
+                        'description' => '注文番号: ' . $order->order_number,
+                    ]);
+                    
+                    // PaymentIntent IDを保存
+                    $order->update([
+                        'stripe_payment_intent_id' => $paymentIntent->id,
+                    ]);
+                    
+                    \Log::info('Stripe PaymentIntent作成', [
+                        'order_id' => $order->id,
+                        'payment_intent_id' => $paymentIntent->id,
+                        'status' => $paymentIntent->status,
+                    ]);
+                    
+                    // 決済が即座に成功した場合（Webhookを待たずに）
+                    if ($paymentIntent->status === 'succeeded') {
+                        $order->markAsPaid($paymentIntent->id, $paymentIntent->latest_charge);
+                        $order->update(['status_id' => 2]); // 入金確認済
+                        
+                        // メール送信
+                        try {
+                            Mail::to($user->email)->send(new OrderCompleteMail($order));
+                        } catch (\Exception $e) {
+                            \Log::error('メール送信失敗', ['order_id' => $order->id, 'error' => $e->getMessage()]);
+                        }
+                    }
+                    
+                } catch (\Stripe\Exception\CardException $e) {
+                    // カードエラー
+                    $order->markAsFailed($e->getMessage());
+                    DB::commit();
+                    return redirect()->route('orders.confirm')
+                        ->with('error', 'カード決済に失敗しました: ' . $e->getMessage());
+                } catch (\Exception $e) {
+                    // その他のStripeエラー
+                    $order->markAsFailed($e->getMessage());
+                    DB::commit();
+                    return redirect()->route('orders.confirm')
+                        ->with('error', '決済処理中にエラーが発生しました: ' . $e->getMessage());
                 }
-                // 代金引換の場合もステータス1のまま
-            } else {
-                throw new \Exception('支払い処理に失敗しました');
             }
+            
+            // 注文作成のログ
+            \Log::info('注文作成完了', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'payment_method_id' => $request->payment_method_id,
+                'total_amount' => $totalAmount,
+                'status_id' => $order->status_id,
+                'payment_status' => $order->payment_status,
+            ]);
             
             DB::commit();
             
@@ -216,6 +275,11 @@ class OrderController extends BaseController
             
         } catch (\Exception $e) {
             DB::rollBack();
+            
+            \Log::error('注文処理エラー', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+            ]);
             
             return redirect()->route('orders.confirm')
                 ->with('error', '注文処理中にエラーが発生しました: ' . $e->getMessage());
@@ -360,4 +424,70 @@ class OrderController extends BaseController
             'message' => '仮の支払い処理が完了しました',
         ];
     }
+
+    /**
+     * 決済未完了の注文を入金確認済みに手動変更
+     * 管理者用機能
+     */
+    public function markOrderAsPaid($id)
+    {
+        $order = Order::findOrFail($id);
+
+        // 既に決済完了の場合
+        if ($order->isPaid()) {
+            return redirect()->back()->with('info', 'この注文は既に決済完了です');
+        }
+
+        DB::beginTransaction();
+        try {
+            // 決済完了にする
+            $order->markAsPaid('MANUAL-' . now()->format('YmdHis'));
+            
+            // ステータスを入金確認済みに
+            $order->update(['status_id' => 2]); // 入金確認済
+
+            DB::commit();
+
+            \Log::info('注文を手動で入金確認済みに変更', [
+                'order_id' => $order->id,
+                'order_number' => $order->order_number,
+                'changed_by' => Auth::id(),
+            ]);
+
+            // メール送信
+            try {
+                Mail::to($order->user->email)->send(new OrderCompleteMail($order));
+            } catch (\Exception $e) {
+                \Log::error('入金確認メール送信失敗', [
+                    'order_id' => $order->id,
+                    'error' => $e->getMessage(),
+                ]);
+            }
+
+            return redirect()->back()->with('success', '注文を入金確認済みに変更しました');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('入金確認処理エラー', [
+                'order_id' => $order->id,
+                'error' => $e->getMessage(),
+            ]);
+            return redirect()->back()->with('error', '処理に失敗しました: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * 決済未完了の注文一覧（管理者用）
+     */
+    public function pendingPayments()
+    {
+        $orders = Order::with(['user', 'orderDetails.goods', 'status', 'paymentMethod'])
+            ->where('payment_status', Order::PAYMENT_STATUS_PENDING)
+            ->orWhere('payment_status', Order::PAYMENT_STATUS_FAILED)
+            ->orderBy('ordered_at', 'desc')
+            ->paginate(20);
+
+        return view('admin.orders.pending_payments', compact('orders'));
+    }
 }
+

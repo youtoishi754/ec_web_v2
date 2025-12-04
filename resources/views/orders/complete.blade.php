@@ -9,7 +9,13 @@
             <div class="text-center mt-5 mb-4">
                 <i class="fas fa-check-circle text-success" style="font-size: 80px;"></i>
                 <h1 class="mt-3">ご注文ありがとうございます!</h1>
-                <p class="lead">注文が正常に完了しました。</p>
+                <p class="lead">注文を受け付けました。</p>
+            </div>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i> 
+                <strong>入金確認後、商品を発送いたします。</strong><br>
+                お支払方法に応じて入金をお願いいたします。
             </div>
             
             <div class="card mb-4">
@@ -21,24 +27,32 @@
                     <p><strong>注文日時:</strong> {{ $order->ordered_at->format('Y年m月d日 H:i') }}</p>
                     <p><strong>合計金額:</strong> ¥{{ number_format($order->calculateGrandTotal()) }}</p>
                     <p><strong>支払方法:</strong> {{ $order->paymentMethod->name }}</p>
+                    <p><strong>決済状態:</strong> 
+                        <span class="badge badge-warning">決済未完了</span>
+                    </p>
                     
                     @if($order->payment_id == 1)
-                        <div class="alert alert-success">
-                            <i class="fas fa-check"></i> クレジットカード決済が完了しました。
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-credit-card"></i> 
+                            <strong>クレジットカード決済</strong><br>
+                            決済処理を確認中です。入金確認後、発送準備を開始いたします。
                         </div>
                     @elseif($order->payment_id == 2)
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle"></i> 商品受取時に配達員にお支払いください。
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-truck"></i> 
+                            <strong>代金引換</strong><br>
+                            商品受取時に配達員にお支払いください。入金確認後、発送いたします。
                         </div>
                     @elseif($order->payment_id == 3)
-                        <div class="alert alert-warning">
-                            <i class="fas fa-exclamation-triangle"></i> 
+                        <div class="alert alert-warning mt-3">
+                            <i class="fas fa-university"></i> 
                             <strong>銀行振込のご案内</strong><br>
                             以下の口座にお振込みください。入金確認後、商品を発送いたします。<br><br>
+                            <strong>振込先情報：</strong><br>
                             ○○銀行 ○○支店<br>
                             普通 1234567<br>
                             名義：カ）イーシーショップ<br>
-                            振込金額：¥{{ number_format($order->calculateGrandTotal()) }}
+                            <strong>振込金額：¥{{ number_format($order->calculateGrandTotal()) }}</strong>
                         </div>
                     @endif
                 </div>

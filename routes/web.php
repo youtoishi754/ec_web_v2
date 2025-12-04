@@ -56,6 +56,9 @@ Route::get('/cart', 'Cart\\CartController@index')->name('cart');
 Route::post('/cart/remove', 'Cart\\CartController@remove')->name('cart_remove');
 Route::post('/cart/clear', 'Cart\\CartController@clear')->name('cart_clear');
 
+// Stripe Webhook（CSRF保護を除外する必要あり）
+Route::post('/webhook/stripe', 'StripeWebhookController@handleWebhook')->name('stripe.webhook');
+
 // マイページ（認証必須）
 Route::middleware('auth')->group(function () {
     Route::get('/mypage', 'MypageController@index')->name('mypage');
@@ -89,4 +92,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/shipping-addresses/add', 'OrderController@addAddress')->name('orders.addresses.add');
     Route::delete('/shipping-addresses/{id}', 'OrderController@deleteAddress')->name('orders.addresses.delete');
     Route::post('/shipping-addresses/{id}/default', 'OrderController@setDefaultAddress')->name('orders.addresses.default');
+    
+    // 注文の入金確認（管理者用）
+    Route::post('/admin/orders/{id}/mark-as-paid', 'OrderController@markOrderAsPaid')->name('admin.orders.mark_as_paid');
+    Route::get('/admin/orders/pending-payments', 'OrderController@pendingPayments')->name('admin.orders.pending_payments');
 });

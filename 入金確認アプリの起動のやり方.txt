@@ -1,0 +1,20 @@
+# 入金確認テスト - クイック手順書
+
+## 1. アプリ起動
+```powershell
+cd f:\windows11_user\xampp\htdocs\ec_web
+php artisan serve
+```
+
+## 2. 管理画面で入金確認
+```
+http://localhost:8000/admin/orders/pending-payments
+```
+
+- 決済未完了の注文一覧が表示される
+- 「入金確認」ボタンをクリック
+- 確認ダイアログで「OK」をクリック
+
+**完了！**
+
+注文が一覧から消え、注文完了メールが送信されます。
